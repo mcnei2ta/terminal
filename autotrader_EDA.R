@@ -161,4 +161,5 @@ summary(fit)
 write.csv(custom_search, file = "Listings_Custom_Search.csv")
 
 #### To Do
-
+# labeling for ggplot2
+# make R notebook
