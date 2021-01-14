@@ -3,9 +3,18 @@ title: "R Notebook: Coaching Cafe: Using R for EDA"
 output: html_notebook
 ---
 
+```{r, setup, include=FALSE}
+knitr::opts_knit$set(root.dir = '/Users/thomasmcneill/Documents/data/coaching_cafe')
+```
+
 load packages and set working directory
 
 ```{r}
+# Clear environment
+rm(list = ls())
+# Clear console
+cat("\014")
+
 library(tidyr) ## spread
 library(dplyr) ## mutate, filter, select, distinct, group_by, summarize
 library(data.table) ## fread, pattern, merge, rbind, setorder
@@ -13,22 +22,22 @@ library(ggplot2) ## for plots
 library(cowplot) ## print plots side by side
 
 
-setwd("/Users/thomasmcneill/Documents/data/coaching_cafe")
+#setwd("/Users/thomasmcneill/Documents/data/coaching_cafe")
 ```
 
 Read in our data sets: 
 1. Vehicle listings within 50 miles of my zip code 
 2. Ratings for different models
 ```{r}
-listings <- fread("vehicle_listings.csv", check.names = T)
-ratings <- fread("vehicle_ratings.csv", check.names = T)
+vehicle_listings <- fread("vehicle_listings.csv", check.names = T)
+vehicle_ratings <- fread("vehicle_ratings.csv", check.names = T)
 ```
 
 We can read them in one at a time (like above)
 However, if we have a multiple data sets, it's easier to read them in all at once
 ```{r}
 # create a list of the names of all files in the working directory, call the list "files"
-files <- paste(substr(list.files(), 1, nchar(list.files())))
+files <- list.files(pattern = "*csv")
 
 # read in all the files in the working directory, name them according to their filenames
 for(i in 1:length(files)){
@@ -36,4 +45,44 @@ for(i in 1:length(files)){
 }
 ```
 
+List all columns in the listings df
+```{r}
+glimpse(vehicle_listings.csv)
+```
+
+```{r}
+glimpse(vehicle_ratings.csv)
+```
+
+the pattern of the "car" column from ratings can be used as an identifier for each model/year
+create the same column for the listings df so we can join the ratings to the listing df
+```{r}
+vehicle_listings.csv$car <- paste0(
+  tolower(gsub(" ","-", vehicle_listings.csv$brand)),
+  "/",
+  tolower(gsub(" ","-", vehicle_listings.csv$model)),
+  "/",
+  tolower(gsub(" ","-", vehicle_listings.csv$productionYear)),
+  "/")
+```
+
+Now we can join add ratings to the listings df
+```{r}
+listings <- merge(vehicle_listings.csv, vehicle_ratings.csv, by = "car", all.x = TRUE)
+```
+
+Clean up environment
+```{r}
+rm(list=ls(pattern = 'vehicle*'))
+```
+
+Confirm the join worked
+```{r}
+glimpse(listings)
+```
+
+We can also view the df in a new tab
+```{r}
+View(listings)
+```
 

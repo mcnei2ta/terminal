@@ -5,7 +5,7 @@ cat("\014")
 
 library(tidyr) ## spread
 library(dplyr) ## mutate, filter, select, distinct, group_by, summarize
-library(data.table) ## fread, merge, rbind, setorder
+library(data.table) ## fread, pattern, merge, rbind, setorder
 library(ggplot2) ## for plots
 library(cowplot) ## print plots side by side
 
@@ -96,14 +96,17 @@ listings %>%
 plot_count <- car_count %>%
   ggplot(aes(x=reorder(manufacturer, num_listings))) +
   geom_col(aes(y=num_listings)) +
-  coord_flip()
-plot_count
+  coord_flip() + 
+  ggtitle("Number of Listings") +
+  xlab("Manufacturer") + ylab("Number of Listings")
 
 ### manufacturer by average price
 plot_price <- car_price %>%
   ggplot(aes(x=reorder(manufacturer, avg_price))) +
   geom_col(aes(y=avg_price)) + 
-  coord_flip()
+  coord_flip() + 
+  ggtitle("Average Price") +
+  xlab("Manufacturer") + ylab("Average Price")
 
 plot_grid(plot_count, plot_price)
 
@@ -112,12 +115,16 @@ plot_grid(plot_count, plot_price)
 plot_exp_rating <- car_exp_rating %>%
   ggplot(aes(x=reorder(manufacturer, avg_rating))) +
   geom_col(aes(y=avg_rating)) + 
-  coord_flip()
+  coord_flip() + 
+  ggtitle("Expert Rating") +
+  xlab("Manufacturer") + ylab("Avg Expert Rating")
 
 plot_cons_rating <- car_cons_rating %>%
   ggplot(aes(x=reorder(manufacturer, avg_rating))) +
   geom_col(aes(y=avg_rating)) + 
-  coord_flip()
+  coord_flip() + 
+  ggtitle("Consumer Rating") +
+  xlab("Manufacturer") + ylab("Avg Consumer Rating")
 
 plot_grid(plot_exp_rating, plot_cons_rating)
 
@@ -126,14 +133,18 @@ plot_grid(plot_exp_rating, plot_cons_rating)
 plot_type <- car_type %>%
   ggplot(aes(x=reorder(bodyType, num_listings))) +
   geom_col(aes(y=num_listings)) + 
-  coord_flip()
+  coord_flip() + 
+  ggtitle("Body Type") +
+  xlab("Body Type") + ylab("Number of Listings")
 
 ### listings by production year
 plot_year <- car_year %>%
   filter(productionYear>1999) %>%
   ggplot(aes(x=productionYear)) +
   geom_col(aes(y=num_listings)) + 
-  coord_flip()
+  coord_flip() + 
+  ggtitle("Production Year") +
+  xlab("Production Year") + ylab("Number of Listings")
 
 plot_grid(plot_type, plot_year)
 
@@ -143,16 +154,16 @@ custom_search <- listings %>%
   filter(price>0) %>%
   filter(price<13000) %>%
   filter(productionYear>2010) %>%
-  filter(productionYear<2019) %>%
+#  filter(productionYear<2019) %>%
   filter(expert_rating>4.2)%>%
-  filter(Odometer<130000) %>%
-  setorder(manufacturer, model, price, Odometer)
-#   filter(bodyType %in% c("Truck"))
+  filter(Odometer<110000) %>%
+  setorder(manufacturer, model, price, Odometer) #%>%
+#  filter(bodyType %in% c("Hatchback")) #%>%
 #  filter(manufacturer %in% c("Lamborghini","Aston Martin","Bentley")) %>%
 #  filter(model %in% c("Dart")) %>%
-  # group_by(manufacturer, model, bodyType) %>%  #productionYear, 
-  # summarise(Total=n(), avgOdom=mean(Odometer), avgPrice=mean(price), minPrice=min(price), maxPrice=max(price)) %>%
-  # setorder(manufacturer, avgPrice, model)
+#  group_by(manufacturer, model, bodyType) %>%  #productionYear, 
+#  summarise(Total=n(), avgOdom=mean(Odometer), avgPrice=mean(price), minPrice=min(price), maxPrice=max(price)) %>%
+#  setorder(manufacturer, avgPrice, model)
 
 # regression
 fit <- lm(price ~ productionYear + bodyType + Odometer + expert_rating + manufacturer, data=listings)
@@ -163,3 +174,4 @@ write.csv(custom_search, file = "Listings_Custom_Search.csv")
 #### To Do
 # labeling for ggplot2
 # make R notebook
+# 

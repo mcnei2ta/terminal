@@ -12,23 +12,29 @@ library(cowplot) ## print plots side by side
 setwd("/Users/thomasmcneill/Documents/data/coaching_cafe")
 
 # read in autotrader data - within 50 miles of my zip code
-listings <- fread("vehicle_listings.csv", check.names = T)
+#   and kbb ratings
+# create a list of the names of all files in the working directory, call the list "files"
+files <- list.files(pattern = "*csv")
 
-# add kbb ratings to each car from separate kbb webscrape
+# read in all the files in the working directory, name them according to their filenames
+for(i in 1:length(files)){
+  assign(files[i],fread(files[i], check.names = TRUE))
+}
+
 #### create new combined column for brand and model in same format as appears in kbb urls (to join)
-listings$car <- paste0(
-  tolower(gsub(" ","-", listings$brand)),
+vehicle_listings.csv$car <- paste0(
+  tolower(gsub(" ","-", vehicle_listings.csv$brand)),
   "/",
-  tolower(gsub(" ","-", listings$model)),
+  tolower(gsub(" ","-", vehicle_listings.csv$model)),
   "/",
-  tolower(gsub(" ","-", listings$productionYear)),
+  tolower(gsub(" ","-", vehicle_listings.csv$productionYear)),
   "/")
 
-#### read in kbb data
-ratings <- fread("vehicle_ratings.csv", check.names = T)
-
 #### merge dataframes (same as a left join from listings to kbb)
-listings <- merge(listings, ratings, by = "car", all.x = TRUE)
+listings <- merge(vehicle_listings.csv, vehicle_ratings.csv, by = "car", all.x = TRUE)
+
+# remove old dfs
+rm(list=ls(pattern = '*csv'))
 
 ### see every column in the data frame
 glimpse(listings)
@@ -37,8 +43,8 @@ glimpse(listings)
 listings$Odometer <- as.numeric(gsub(",","", listings$Odometer))
 listings <- listings %>%
   select(manufacturer, model, productionYear, bodyType, price, Odometer, color, expert_rating, 
-         consumer_rating, url, vehicle_image_url, itemCondition, driveWheelConfiguration, vehicleInteriorColor, 
-         fuelType, fuelEfficiency, vehicleEngine, vehicleTransmission, seller_name, vin) %>%
+         consumer_rating, itemCondition, driveWheelConfiguration, vehicleInteriorColor, 
+         fuelType, fuelEfficiency, vehicleEngine, vehicleTransmission) %>%
   setorder(-expert_rating, price)
 
 ###### Pivots
@@ -149,7 +155,6 @@ plot_year <- car_year %>%
 
 plot_grid(plot_type, plot_year)
 
-
 ##### Custom Search
 custom_search <- listings %>%
   filter(price>0) %>%
@@ -166,13 +171,5 @@ custom_search <- listings %>%
 #  summarise(Total=n(), avgOdom=mean(Odometer), avgPrice=mean(price), minPrice=min(price), maxPrice=max(price)) %>%
 #  setorder(manufacturer, avgPrice, model)
 
-# regression
-fit <- lm(price ~ productionYear + bodyType + Odometer + expert_rating + manufacturer, data=listings)
-summary(fit)
-
-write.csv(custom_search, file = "Listings_Custom_Search.csv")
-
-#### To Do
-# labeling for ggplot2
-# make R notebook
-# 
+### Unused, useful functions
+# distinct, pattern, rbind, %in%, lubridate package
