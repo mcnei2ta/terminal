@@ -1,0 +1,39 @@
+---
+title: "R Notebook: Coaching Cafe: Using R for EDA"
+output: html_notebook
+---
+
+load packages and set working directory
+
+```{r}
+library(tidyr) ## spread
+library(dplyr) ## mutate, filter, select, distinct, group_by, summarize
+library(data.table) ## fread, pattern, merge, rbind, setorder
+library(ggplot2) ## for plots
+library(cowplot) ## print plots side by side
+
+
+setwd("/Users/thomasmcneill/Documents/data/coaching_cafe")
+```
+
+Read in our data sets: 
+1. Vehicle listings within 50 miles of my zip code 
+2. Ratings for different models
+```{r}
+listings <- fread("vehicle_listings.csv", check.names = T)
+ratings <- fread("vehicle_ratings.csv", check.names = T)
+```
+
+We can read them in one at a time (like above)
+However, if we have a multiple data sets, it's easier to read them in all at once
+```{r}
+# create a list of the names of all files in the working directory, call the list "files"
+files <- paste(substr(list.files(), 1, nchar(list.files())))
+
+# read in all the files in the working directory, name them according to their filenames
+for(i in 1:length(files)){
+  assign(files[i],fread(files[i], check.names = TRUE))
+}
+```
+
+
