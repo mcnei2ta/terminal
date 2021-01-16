@@ -24,6 +24,8 @@ library(cowplot) ## print plots side by side
 
 #setwd("/Users/thomasmcneill/Documents/data/coaching_cafe")
 ```
+Note: there is a package to hit databases directly like SQL, but we don't use it at STU. I use R for standard data sets that have already been pulled and to merge those with external data sets (from CBP, USCIS, EOIR, etc)
+
 
 Read in our data sets: 
 1. Vehicle listings within 50 miles of my zip code 
@@ -165,4 +167,103 @@ car_type <- listings %>%
 car_price
 ```
 
+Now let's create some plots with ggplot2
+```{r}
+##### Distribution of prices (excluding prices of 0)
+# we can get a better view of the dist if we exclude the outliers to the right
+listings %>%
+  filter(price>0) %>%
+  filter(price<100000) %>%
+  ggplot(aes(price/1000)) +
+  geom_histogram(bins=100)
+```
+The distribution skews right
+
+Total number of listings and average prices by manufacturer
+using pivots we've already created
+```{r}
+### manufacturer by number of listings
+plot_count <- car_count %>%
+  ggplot(aes(x=reorder(manufacturer, num_listings))) +
+  geom_col(aes(y=num_listings)) +
+  coord_flip() + 
+  ggtitle("Number of Listings") +
+  xlab("Manufacturer") + ylab("Number of Listings")
+
+### manufacturer by average price
+plot_price <- car_price %>%
+  ggplot(aes(x=reorder(manufacturer, avg_price))) +
+  geom_col(aes(y=avg_price)) + 
+  coord_flip() + 
+  ggtitle("Average Price") +
+  xlab("Manufacturer") + ylab("Average Price")
+
+# this function lets you show plots next to each other
+plot_grid(plot_count, plot_price)
+```
+Average ratings by manufacturer: Expert v consumer ratings
+```{r}
+### manufacturer by average expert rating
+plot_exp_rating <- car_exp_rating %>%
+  ggplot(aes(x=reorder(manufacturer, avg_rating))) +
+  geom_col(aes(y=avg_rating)) + 
+  coord_flip() + 
+  ggtitle("Expert Rating") +
+  xlab("Manufacturer") + ylab("Avg Expert Rating")
+
+plot_cons_rating <- car_cons_rating %>%
+  ggplot(aes(x=reorder(manufacturer, avg_rating))) +
+  geom_col(aes(y=avg_rating)) + 
+  coord_flip() + 
+  ggtitle("Consumer Rating") +
+  xlab("Manufacturer") + ylab("Avg Consumer Rating")
+
+plot_grid(plot_exp_rating, plot_cons_rating)
+```
+Ratings don't vary a lot
+
+```{r}
+### listings by body type
+plot_type <- car_type %>%
+  ggplot(aes(x=reorder(bodyType, num_listings))) +
+  geom_col(aes(y=num_listings)) + 
+  coord_flip() + 
+  ggtitle("Body Type") +
+  xlab("Body Type") + ylab("Number of Listings")
+
+### listings by production year
+plot_year <- car_year %>%
+  filter(productionYear>1999) %>%
+  ggplot(aes(x=productionYear)) +
+  geom_col(aes(y=num_listings)) + 
+  coord_flip() + 
+  ggtitle("Production Year") +
+  xlab("Production Year") + ylab("Number of Listings")
+
+plot_grid(plot_type, plot_year)
+
+```
+Filter down the data set to meet your specifications
+```{r}
+##### Custom Search
+custom_search <- listings %>%
+  filter(price>0) %>%
+  filter(price<15000) %>%
+  filter(productionYear>2010) %>%
+  filter(expert_rating>4.2)%>%
+  filter(Odometer<110000) %>%
+  setorder(manufacturer, model, price, Odometer) %>%
+  filter(bodyType %in% c("Sedan","Hatchback","Sport Utility")) %>%
+  filter(manufacturer %in% c("Honda","Toyota","Subaru")) %>%
+  select(manufacturer, model, productionYear, bodyType, price, Odometer, color, expert_rating, 
+         consumer_rating, itemCondition, driveWheelConfiguration, vehicleInteriorColor, 
+         fuelType, fuelEfficiency, vehicleEngine, vehicleTransmission) %>%
+  setorder(-expert_rating, price)
+View(custom_search)
+```
+
+Create excel report 
+```{r}
+
+```
 
