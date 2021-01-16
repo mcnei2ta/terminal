@@ -81,8 +81,88 @@ Confirm the join worked
 glimpse(listings)
 ```
 
+Odometer was read in as a character; change it to numeric (remove commas first)
+```{r}
+listings$Odometer <- as.numeric(gsub(",","", listings$Odometer))
+```
+
 We can also view the df in a new tab
 ```{r}
 View(listings)
 ```
+
+Now that we have our final dataset, we can perform some EDA
+
+First, let's create pivot tables
+```{r}
+car_year <- listings %>%
+  group_by(productionYear) %>%        # rows (break out by production year)
+  summarise(num_listings=n()) %>%     # count (total number or listings)
+  setorder(-productionYear)           # order (production year descending)
+car_year
+```
+
+We can also add column breakouts for pivot tables
+```{r}
+car_year_type <- listings %>%
+  group_by(productionYear, bodyType) %>%        # rows (break out by production year)
+  summarise(num_listings=n()) %>%     # count (total number or listings)
+  spread(bodyType, num_listings, fill=0) %>%                # 
+  setorder(-productionYear)           # order (production year descending)
+car_year_type
+```
+
+And view in a separate tab
+```{r}
+View(car_year_type)
+# or you can just click it in the console
+```
+
+Now let's create a few more pivot tables to use for plotting
+```{r}
+# filter to cars produced 2010 or later for clearer plots
+
+# total number of listings by manufacturer
+car_count <- listings %>%
+  filter(productionYear>2009) %>%
+  group_by(manufacturer) %>%
+  summarise(num_listings=n()) %>%
+  filter(num_listings>2) %>%
+  setorder(-num_listings)
+
+# average price of cars by manufacturer
+car_price <- listings %>%
+  filter(price>0) %>%
+  filter(productionYear>2009) %>%
+  group_by(manufacturer) %>%
+  summarise(avg_price=mean(price)) %>%    # We can also use average as the pivot count instead of total listings
+  setorder(-avg_price)
+
+# average expert rating by manufacturer
+car_exp_rating <- listings %>%
+  filter(productionYear>2009) %>%
+  filter(!is.na(expert_rating)) %>%
+  group_by(manufacturer) %>%
+  summarise(avg_rating=mean(expert_rating)) %>%
+  setorder(-avg_rating)
+
+# average consumer rating by manufacturer
+car_cons_rating <- listings %>%
+  filter(productionYear>2009) %>%
+  filter(!is.na(consumer_rating)) %>%
+  group_by(manufacturer) %>%
+  summarise(avg_rating=mean(consumer_rating)) %>%
+  setorder(-avg_rating)
+
+# total number of listing by body type
+car_type <- listings %>%
+  filter(!is.na(bodyType)) %>%
+  filter(bodyType != "Unavailable ") %>%
+  group_by(bodyType) %>%
+  summarise(num_listings=n()) %>%
+  setorder(-num_listings)
+
+car_price
+```
+
 
