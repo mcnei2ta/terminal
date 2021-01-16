@@ -254,7 +254,7 @@ custom_search <- listings %>%
   filter(Odometer<110000) %>%
   setorder(manufacturer, model, price, Odometer) %>%
   filter(bodyType %in% c("Sedan","Hatchback","Sport Utility")) %>%
-  filter(manufacturer %in% c("Honda","Toyota","Subaru")) %>%
+#  filter(manufacturer %in% c("Honda","Toyota","Subaru", "MAZDA")) %>%
   select(manufacturer, model, productionYear, bodyType, price, Odometer, color, expert_rating, 
          consumer_rating, itemCondition, driveWheelConfiguration, vehicleInteriorColor, 
          fuelType, fuelEfficiency, vehicleEngine, vehicleTransmission) %>%
