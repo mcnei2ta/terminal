@@ -9,10 +9,24 @@ library(data.table) ## fread, pattern, merge, rbind, setorder
 library(ggplot2) ## for plots
 library(cowplot) ## print plots side by side
 
+# Note: there is a package to hit databases directly like SQL, but we don't use it at STU. 
+# I use R for standard data sets that have already been pulled and to merge those with external data sets (from CBP, USCIS, EOIR, etc)
+
 setwd("/Users/thomasmcneill/Documents/data/coaching_cafe")
 
-# read in autotrader data - within 50 miles of my zip code
-#   and kbb ratings
+'''
+Read in our data sets: 
+  1. Vehicle listings within 50 miles of my zip code 
+  2. Ratings for different models
+'''
+
+# simple method
+vehicle_listings <- fread("vehicle_listings.csv", check.names = T)
+vehicle_ratings <- fread("vehicle_ratings.csv", check.names = T)
+
+rm(list = ls(pattern = "vehicle*"))
+
+# efficient method
 # create a list of the names of all files in the working directory, call the list "files"
 files <- list.files(pattern = "*csv")
 
@@ -20,6 +34,15 @@ files <- list.files(pattern = "*csv")
 for(i in 1:length(files)){
   assign(files[i],fread(files[i], check.names = TRUE))
 }
+
+# list all columns in our data sets
+glimpse(vehicle_listings.csv)
+glimpse(vehicle_ratings.csv)
+
+###### combining data sets (a SQL left join)
+
+# the pattern of the "car" column from ratings can be used as an identifier for each model/year
+# create the same column for the listings df so we can join the ratings to the listing df
 
 #### create new combined column for brand and model in same format as appears in kbb urls (to join)
 vehicle_listings.csv$car <- paste0(
@@ -30,30 +53,51 @@ vehicle_listings.csv$car <- paste0(
   tolower(gsub(" ","-", vehicle_listings.csv$productionYear)),
   "/")
 
+# Now we can join add ratings to the listings df
 #### merge dataframes (same as a left join from listings to kbb)
 listings <- merge(vehicle_listings.csv, vehicle_ratings.csv, by = "car", all.x = TRUE)
 
-# remove old dfs
+# Clean up environment
 rm(list=ls(pattern = '*csv'))
 
 ### see every column in the data frame
 glimpse(listings)
+# We can also view the df in a new tab 
+View(listings)
+# also do this by clicking df in environment
 
-# format and select columns to keep
+# Odometer was read in as a character; change it to numeric (remove commas first)
 listings$Odometer <- as.numeric(gsub(",","", listings$Odometer))
+
+# select columns to keep
 listings <- listings %>%
   select(manufacturer, model, productionYear, bodyType, price, Odometer, color, expert_rating, 
          consumer_rating, itemCondition, driveWheelConfiguration, vehicleInteriorColor, 
          fuelType, fuelEfficiency, vehicleEngine, vehicleTransmission) %>%
   setorder(-expert_rating, price)
 
-###### Pivots
+###### EDA
+
+# Now that we have our final dataset, we can perform some EDA
+
+# First, let's create pivot tables
 
 car_year <- listings %>%
-  group_by(productionYear) %>%
-  summarise(num_listings=n()) %>%
-  setorder(-productionYear)
+  group_by(productionYear) %>%        # rows (break out by production year)
+  summarise(num_listings=n()) %>%     # count (total number or listings)
+  setorder(-productionYear)           # order (production year descending)
 
+# We can also add column breakouts for pivot tables
+car_year_type <- listings %>%
+  group_by(productionYear, bodyType) %>%        # select fields we want to use for rows/columns
+  summarise(num_listings=n()) %>%               # count (total number or listings)
+  spread(bodyType, num_listings, fill=0) %>%    # specify column and count, remaining field from "group_by" is row
+  setorder(-productionYear)                     # order (production year descending)
+
+# Create a few more pivot tables to use for plotting
+# filter to cars produced 2010 or later for clearer plots
+
+# total number of listings by manufacturer
 car_count <- listings %>%
   filter(productionYear>2009) %>%
   group_by(manufacturer) %>%
@@ -61,13 +105,15 @@ car_count <- listings %>%
   filter(num_listings>2) %>%
   setorder(-num_listings)
 
+# average price of cars by manufacturer
 car_price <- listings %>%
   filter(price>0) %>%
   filter(productionYear>2009) %>%
   group_by(manufacturer) %>%
-  summarise(avg_price=mean(price)) %>%
+  summarise(avg_price=mean(price)) %>%    # We can also use average as the pivot count instead of total listings
   setorder(-avg_price)
 
+# average expert rating by manufacturer
 car_exp_rating <- listings %>%
   filter(productionYear>2009) %>%
   filter(!is.na(expert_rating)) %>%
@@ -75,6 +121,7 @@ car_exp_rating <- listings %>%
   summarise(avg_rating=mean(expert_rating)) %>%
   setorder(-avg_rating)
 
+# average consumer rating by manufacturer
 car_cons_rating <- listings %>%
   filter(productionYear>2009) %>%
   filter(!is.na(consumer_rating)) %>%
@@ -82,6 +129,7 @@ car_cons_rating <- listings %>%
   summarise(avg_rating=mean(consumer_rating)) %>%
   setorder(-avg_rating)
 
+# total number of listing by body type
 car_type <- listings %>%
   filter(!is.na(bodyType)) %>%
   filter(bodyType != "Unavailable ") %>%
@@ -89,14 +137,18 @@ car_type <- listings %>%
   summarise(num_listings=n()) %>%
   setorder(-num_listings)
 
-##### Graphs
+View(car_price)
 
-##### Distribution of prices
+##### Graphs in ggplot2
+
+##### Distribution of prices (excluding prices of 0)
+# we can get a better view of the dist if we exclude the outliers to the right
 listings %>%
   filter(price>0) %>%
   filter(price<100000) %>%
   ggplot(aes(price/1000)) +
   geom_histogram(bins=100)
+# The distribution skews right
 
 ##### counts and prices by manufacturer 
 ### manufacturer by number of listings
@@ -115,7 +167,7 @@ plot_price <- car_price %>%
   ggtitle("Average Price") +
   xlab("Manufacturer") + ylab("Average Price")
 
-plot_grid(plot_count, plot_price)
+plot_grid(plot_count, plot_price)      ## this function shows multiple graphs side by side
 
 ####### ratings by manufacturer
 ### manufacturer by average expert rating
@@ -155,21 +207,10 @@ plot_year <- car_year %>%
 
 plot_grid(plot_type, plot_year)
 
-##### Custom Search
-custom_search <- listings %>%
-  filter(price>0) %>%
-  filter(price<13000) %>%
-  filter(productionYear>2010) %>%
-#  filter(productionYear<2019) %>%
-  filter(expert_rating>4.2)%>%
-  filter(Odometer<110000) %>%
-  setorder(manufacturer, model, price, Odometer) #%>%
-#  filter(bodyType %in% c("Hatchback")) #%>%
-#  filter(manufacturer %in% c("Lamborghini","Aston Martin","Bentley")) %>%
-#  filter(model %in% c("Dart")) %>%
-#  group_by(manufacturer, model, bodyType) %>%  #productionYear, 
-#  summarise(Total=n(), avgOdom=mean(Odometer), avgPrice=mean(price), minPrice=min(price), maxPrice=max(price)) %>%
-#  setorder(manufacturer, avgPrice, model)
+# I'm not well versed in ggplot2 - these can be customized to look a lot better
+
+
+######  Create excel report 
 
 ### Unused, useful functions
 # distinct, pattern, rbind, %in%, lubridate package
