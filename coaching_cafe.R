@@ -1,3 +1,6 @@
+### Unused, useful functions
+# distinct, pattern, rbind, %in%, mutate
+
 # Clear environment
 rm(list = ls())
 # Clear console
@@ -8,17 +11,16 @@ library(dplyr) ## mutate, filter, select, distinct, group_by, summarize
 library(data.table) ## fread, pattern, merge, rbind, setorder
 library(ggplot2) ## for plots
 library(cowplot) ## print plots side by side
+library(openxlsx) ## creating excel workbooks
 
 # Note: there is a package to hit databases directly like SQL, but we don't use it at STU. 
 # I use R for standard data sets that have already been pulled and to merge those with external data sets (from CBP, USCIS, EOIR, etc)
 
 setwd("/Users/thomasmcneill/Documents/data/coaching_cafe")
 
-'''
-Read in our data sets: 
-  1. Vehicle listings within 50 miles of my zip code 
-  2. Ratings for different models
-'''
+# Read in our data sets: 
+#   1. Vehicle listings within 50 miles of my zip code 
+#   2. Ratings for different models
 
 # simple method
 vehicle_listings <- fread("vehicle_listings.csv", check.names = T)
@@ -209,8 +211,80 @@ plot_grid(plot_type, plot_year)
 
 # I'm not well versed in ggplot2 - these can be customized to look a lot better
 
+brand_listings_price_ratings <- listings %>%
+  filter(price>0) %>%
+  filter(!is.na(expert_rating)) %>%
+  filter(!is.na(consumer_rating)) %>%
+  group_by(Manufacturer=manufacturer) %>%
+  summarise(`Number of Listings`=n(), `Average Price`=mean(price), `Avg Expert Rating`=mean(expert_rating))
 
-######  Create excel report 
+#################  Create excel report ################
 
-### Unused, useful functions
-# distinct, pattern, rbind, %in%, lubridate package
+######## EXCEL #########
+
+## Create styles
+
+Title <- createStyle(halign = "left", valign = "center", textDecoration = "bold")
+
+Headers <- createStyle(fontColour = "#FFFFFF", border = c("top", "bottom", "left", "right"), 
+                       fgFill = "#6495ED", halign = "center", valign = "center",
+                       textDecoration = "bold")
+
+Currency <- createStyle(numFmt = '_($* #,##0_);_($* (#,##0);_($* "-"??_);_(@_)', border = c("top", "bottom", "left", "right"),
+                       halign = "right", valign = "center")
+
+Counts <- createStyle(numFmt = 'COMMA', border = c("top", "bottom", "left", "right"),
+                        halign = "right", valign = "center")
+
+Ratings <- createStyle(numFmt = '0.0', border = c("top", "bottom", "left", "right"),
+                       halign = "right", valign = "center")
+
+Total <- createStyle(border = c("top", "bottom", "left", "right"), 
+                     fgFill = "#C0C0C0", halign = "center", valign = "center")
+
+Double_Border <- createStyle(border = "bottom", borderStyle = "double")
+
+## Create a new workbook
+
+wb <- createWorkbook(creator = "Thomas"
+                     , title = "Vehicles for Sale"
+                     , subject = "Within 50 miles of Richmond, VA")
+
+addWorksheet(wb, "Summary")
+
+# FOOTNOTES
+long_date <- format(Sys.Date(),'%A, %B %d, %Y')
+
+footnote <- paste0("Vehicles for sale in my area as of ", Sys.Date())
+
+writeData(wb,"Summary", footnote, startCol = 1, startRow = 1)
+
+### Summary Tab
+
+# Table: Vehicle Listings by Manufacturer
+# Title
+writeData(wb,"Summary", "VEHICLE LISTINGS, PRICES AND RATINGS BY MANUFACTURER", startCol = 1, startRow = 3)
+addStyle(wb, "Summary", Title, rows=3, cols=1, gridExpand = FALSE, stack = FALSE)
+
+# Data
+writeData(wb,"Summary", brand_listings_price_ratings, startCol = 1, startRow = 4, borders = "all")
+
+# formatting
+addStyle(wb, "Summary", Headers, cols=1:4, rows=4, gridExpand = FALSE, stack = FALSE)
+addStyle(wb, "Summary", Counts, rows=5:(4+nrow(brand_listings_price_ratings)), cols=2, gridExpand = TRUE, stack = FALSE)
+addStyle(wb, "Summary", Currency, rows=5:(4+nrow(brand_listings_price_ratings)), cols=3, gridExpand = TRUE, stack = FALSE)
+addStyle(wb, "Summary", Ratings, rows=5:(4+nrow(brand_listings_price_ratings)), cols=4, gridExpand = TRUE, stack = FALSE)
+
+# Color scales
+# conditionalFormatting(wb, "Summary", cols=2, rows=4:(4+nrow(brand_listings_price_ratings)), style = c("#F8696B", "#FFEB84", "#63BE7B"), type = "colourScale")
+conditionalFormatting(wb, "Summary", cols=3, rows=4:(4+nrow(brand_listings_price_ratings)), style = c("#63BE7B", "#FFEB84", "#F8696B"), type = "colourScale")
+conditionalFormatting(wb, "Summary", cols=4, rows=4:(4+nrow(brand_listings_price_ratings)), style = c("#F8696B", "#FFEB84", "#63BE7B"), type = "colourScale")
+
+# Gridlines
+showGridLines(wb, "Summary", showGridLines = FALSE)
+
+## Tab column widths
+setColWidths(wb, "Summary", cols=1:4, widths = 16)
+
+### Save the workbook
+saveWorkbook(wb, paste0("Vehicle_Listings",Sys.Date(), ".xlsx"), overwrite = TRUE)
