@@ -4,7 +4,7 @@ rm(list = ls())
 cat("\014")
 
 # TO UPDATE THIS SCRIPT FOR A DIFFERENT ZIP CODE:
-# 1. The only lines that should need to be updated are 35, 52, and 224 (these are URLs - whole URLs or sections)
+# 1. The only lines that should need to be updated are 46, 63, and 235 (these are URLs - whole URLs or sections)
 # 2. On the Autotrader homepage, search your zip code (any make/model), and copy the URL. Replace the lines above with it, 
 # making sure your including the right sections (or the whole URL if applicable)
 # 3. Search and replace "Richmond" with your area
