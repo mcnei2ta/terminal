@@ -3,19 +3,33 @@ rm(list = ls())
 # Clear console
 cat("\014")
 
-### autotrader doesnt let you go past 1000 results. search needs to be broken into sections with each search 
-# resulting in <1000 results. 
-# the most efficient way to do this (least number of individual searches / URLs)
+# TO UPDATE THIS SCRIPT FOR A DIFFERENT ZIP CODE:
+# 1. The only lines that should need to be updated are 35, 52, and 224 (these are URLs - whole URLs or sections)
+# 2. On the Autotrader homepage, search your zip code (any make/model), and copy the URL. Replace the lines above with it, 
+# making sure your including the right sections (or the whole URL if applicable)
+# 3. Search and replace "Richmond" with your area
+# 4. If you live in a populated area with a lot of cars for sale, I would change the search radius to 10 miles instead of 50
+# as you'll see below, each search we loop through has to have <1000 results in order to capture all vehicles for sale, and 
+# a lower radius makes this more likely. If any searches result in >1000 results, the script should still work, it just won't
+# pull back all listings 
+
+### autotrader only lets you see the first 1000 results of any search
+# Therefore each search needs to be broken into sections resulting in <1000 results. 
+# To achieve this for the Richmond area, searches are broken down in the following manner:
+# 1. Production Years: This Year - Five Years Ago by Price Range (Ten Price Ranges)
+# 2. Production Years: Six - Thirteen Years Ago by Year
+# 3. Production Years: 14 - 40 Years Ago
+
+# fewer results could also be achieved by adjusting the searchRadius in the URL (currently 50 mile radius)
 
 ### TROUBLESHOOTING
-# Have seen this error: Error in if (results == "0 Results") { : argument is of length zero
+# If you get this error in for loop: Error in if (results == "0 Results") { : argument is of length zero
 # To fix: Update the selector path (may have been changed by Autotrader developers)
 #     Go to URL > Developer > Show Page Source
 #     Search the page source for the text showing number of results
 #     Right click this line > Copy > Selector Path
 #     Replace the selector path in: results -> page %>% html_nodes("")
 
-# install.packages("rvest")
 library(rvest)
 library(tidyr)
 library(plyr)
@@ -24,7 +38,9 @@ library(data.table)
 
 setwd("/Users/thomasmcneill/Documents/data")
 
-####### Read in listings from first page of search: richmond cars on autotrade
+####### Read in listings from first page of search: richmond cars on autotrader
+## (we need to make a non-empty data frame that we can add more listings to in the following for loops; so we start by creating 
+## a dataframe of the results from the first page of results.)
 
 # load in HTML from URL
 url <- "https://www.autotrader.com/cars-for-sale/all-cars/richmond-va-23220?dma=&searchRadius=50&marketExtension=off&isNewSearch=false&showAccelerateBanner=false&sortBy=relevance&numRecords=100"
