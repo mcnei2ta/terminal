@@ -81,8 +81,8 @@ rm(credit)
 rm(checking)
 
 #### Earliest date to be included
-Earliest <- "2020-01-01"
-#Latest <- "2020-05-31"
+Earliest <- "2020-09-01"
+Latest <- "2021-09-01"
 
 ##################################################################################################################
 
@@ -95,11 +95,11 @@ purchases = list(
                        'VA ABC STORE','UNION WINE AND LIQ','7-ELEVEN','COLUMBIA PIKE CI', 'FAMILY DOLLAR','WALGREENS','SHEETZ','REAMS MARKET',
                        "AKJK CROWN",'BI-LO GROCERY','SPEEDWAY',"SPEEDY'S MART",'SUNNYS MARKET','CHEVRON FOOD MART','PUBLIX SUPER MAR',
                        'SAFEWAY','NNT QUICK SNACK','HARRIS TEETER', 'KROGER','FOOD LION','CAP LIQUORS','SHELL OIL','TOKYO MARKET','TARGET',
-                       "MARATHON PETRO","QT 770 CONYERS","3 HENS","MECKLENBURG ABC","STRAWBERRY ST MARKET",
+                       "MARATHON PETRO","QT 770 CONYERS","3 HENS","MECKLENBURG ABC","STRAWBERRY ST MARKET","BP RICHMOND","PUBLIX",
                        "MILE HIGH LIQUORS","CST4076 DENVER","TOM LEONARD'S FARMERS MA","ALDI","FRESH MARKET"
   ),
   household_items = c("LOWE'S",'BEDBATH&BEYOND','IKEA','NNT COST PLUS', 'GOODWILL','BED BATH & BEYOND','STAPLES',"LOWES",
-                      "U-HAUL","ADDRESSCHANGEFORMS"
+                      "U-HAUL","ADDRESSCHANGEFORMS","RICHMOND RE-CYC"
   ),
   bars = c('CRYSTAL CITY SPORT', 'EL REY', 'FOX BROS BAR','LUCKY BAR',"ORMSBY'S",'SINE IRISH PUB','SOUTHERN RAILWAY T','ROCK AND ROLL',
            'THE QUEEN VIC','THE FAINTING GOAT','ZEN BISTRO','BAJA BEAN','BARCODE','BASEMENT BAR','DON`T LOOK BACK','Flash','FLORA',
@@ -113,7 +113,7 @@ purchases = list(
            "THE LIBERTY T", "U STREET MUSIC HAL","STICKY RICE","POOR BOYS","Roofers Union",'801 Restaurant and Bar','CARY STREET CAFE',
            "GARDEN GROVE BREWING","BARRIO","BUSHWALLER","IDIOM BREWING CO","THE HOP AND VINE","STEINHARDT BREWING CO","THE WINE KITCHEN",
            "White Rabbit Gastropub","CAFE NOLA","CANON & DRAW BREWING","BLUE MOON BREWING","GREAT DIVIDE BREW","BLACK SHIRT BREWING",
-           "CANOPY DENVER"
+           "CANOPY DENVER","CANON & DRAW"
   ),
   eating_out = c("BEAUVINE BURGER", "DESPERADOS BURGER", "BASIC BURGER", "BURGER KING", "BURGER BACH",'SAVI PHARR', 'STARBUCKS',
                  'AUNTIE ANNES', 'BREZZA CUCINA','BUCKHEAD IRISH PUB','CHIPOTLE','KOGIYA RESTAURANT',
@@ -140,8 +140,10 @@ purchases = list(
                  "BEANS & BAGELS LEWISTOWN","DD/BR","ROASTOLOGY CAFE","Four Brothers Grill","CRAZY THAI","LITTLE SPOON","PAPA JOHNS",
                  "BELMONT PIZZERIA","SHYNDIGZ","AC DBC FS PIZZA TENNYSON","El Jefe Denver","FRESCA Denver","STYRIA BAKERY II",
                  "TNT COUNTRY KITCHEN","SASSAFRAS","THE BLUE COW EATERY","BOMBOLINI PASTA","COFFEE","QUICK SNACK","ANKARA",
-                 "IZZY S KITCHEN","TARRANT S","TEXAS DE BRAZIL","GARNETT`S","OK8","BOKA TAKO","AMK CAP1","TOAST"
-  ),
+                 "IZZY S KITCHEN","TARRANT S","TEXAS DE BRAZIL","GARNETT`S","OK8","BOKA TAKO","AMK CAP1","TOAST",
+                 "BAMBOO CAFE", "CURBSIDE","DUNKIN","MELLOW MUSHROOM","CARYTOWN BURGERS","THE BOATHOUSE","PIT AND THE PEEL",
+                 "VILLAGE CAFÉ","VILLAGE CAFE"
+                 ),
   #  lunch = c ('POTBELLY','PANDA EXPRESS','DC FOOD TRUCK',"CAPITAL CAFE",'TASTY KABOB',"FLIPPN' PIZZA","TASTYKABOB","PETER CHANG"),
   clothes_shoes = c('GAP US','NORDSTROM','MACYS','T.J. MAXX','JOSABANK CLOTHIERS',"JOSABANK",
                     'DSW PENTAGON ROW',"FINISHING TOUCHES","DSW","OLD NAVY"
@@ -154,12 +156,13 @@ purchases = list(
                      'POE FOUNDATION','WINTERGREEN','DAYS INN','RESIDENT ADVISOR T',"PARTY CITY",'TICKETFLY','TRIGGER AGENCY',
                      'STUBHUB','FCPA OAK MAR GC','INTL SPY MUSEUM','TICKETMASTER','BALLSTON COMMON ST','CARMACK',"VIRGINIA MUSEUM BEST", 
                      "ARTECHOUSE","LINCOLN THEATRE",'ALOHA SAFARI ZOO',"FIRST LANDING ST PARK","NATIONAL MUSEUM OF CIVIL FREDERICK",
-                     "BOGEYS SPORTS PARK"),
+                     "BOGEYS SPORTS PARK","DOG KRAZY","VIRGINIA MUSEUM OF FINE","WHITE TAIL","WHITETAIL"
+                     ),
   gifts_holidays = c('PREPAID','MOOSE APPLE CHRIST','Amzn.com/bill','ACACIA MID-TOWN','GAMESTOP #4101 1100 S HAY 12-23-18',
                      'VZW WEBPAY VZ WIRELESS','BRANDYLANE PUB',"L2ATOM51",'RICHARD VARIETY ST','GUAVA FAMILY INC',
                      'GAMESTOP #4101 1100 S HAY 12-03- 19','THINGS REMEMBERE','5S5RZ6S','TARGET.COM',"MICHAELS STORES",
-                     "RAVENCHASE", "MONGREL"
-  ),
+                     "RAVENCHASE", "MONGREL","COURANT","LADLESLINE","PHANPHNGSD","PICTURESTH"
+                     ),
   #  groceries = c('HARRIS TEETER', 'KROGER','FOOD LION'),
   media = c('ITUNES','Hulu','Prime Video','Spotify', 'Amazon Prime','APPLE.COM/BILL',"SPOTIFY"),
   phone = c('PAYMENTS VERIZON WIRELESS','VERIZON WRLS'),
@@ -167,14 +170,15 @@ purchases = list(
   rent_utilities = c('PROPERTY PAYMENT','STATE FARM INSURAN','STATE FARM INSURA',"AMPLE STORAGE",
                      "PAYMENT VCU WEB PAY 508978","CHECK"),
   salary_and_reimbursement = c('DIRECT DEP BOOZ ALLEN HAMIL','MOBILE DEPOSIT',"FUNDS XFER BRENTALIE", "VASTTAXRFD VA DEPT TAXATION", 
-                               "SBTPG LLC TAX PRODUCTS",'TAX REF IRS',"TRUIST CARES BONUS","AUTO PMT FROM ACCT"),
+                               "SBTPG LLC TAX PRODUCTS",'TAX REF IRS',"TRUIST CARES BONUS","AUTO PMT FROM ACCT","IRS TREAS"),
   student_loans_grad_school = c('STUDNTLOAN',"COLLEGE TRANSCRIPT","VCUGRAD"),
   transfer_from_savings = c('FROM SAVINGS'),
   transfer_to_savings = c('TO SAVINGS'),
+  investments = c("COINBASE"),
   metro = c('ERM','METRO'),
   trains_buses_car_repair = c('AMTRAK','GREYHOUND','MEGABUS',"RVA COMPLETE AUTOMOTIVE","AUTO REPAIR"),
   travel = c('SPIRIT AIRL','DELTA AIR','MARC GARAGE & BWI','PEN AND PROSE - BWI','UNITED','EXPEDIA','QUALITY SUITES',
-             'DULLES WASHINGTON','HAMPTON INN','FOREIGN TRANSACTION FEE','CONDOR'),
+             'DULLES WASHINGTON','HAMPTON INN','FOREIGN TRANSACTION FEE','CONDOR',"ENTERPRISE RENT-A-CAR"),
   rideshares = c('UBER','LYFT','BIRD APP'),
   venmo_paid = c('CASHOUT VENMO'),
   venmo_payment = c('PAYMENT VENMO','RETRY PYMT VENMO'),
@@ -183,11 +187,13 @@ purchases = list(
                     'GREAT CLIPS', 'COINMACH RIVER','PARKMOBILE','RIVER HOUSE VALET','VALET PARKIN',"RETURNED ITEM FEE",
                     'PENSKE TRK', 'PAY PAL *PAULINEOGEM', 'FANTASTIC THRIF','TEN THOUSAND', 'VNO PENTAGON PLAZA','COINMACH',
                     "L'ENFANT WEST","MYEYEDR","ARAMARK REFRESHMENTS","FMB LAUNDRY","INTUIT",'EXXONMOBIL',
-                    "IMMORTAL BELOVED","ASHLEY-RIVERHOUSE","TELADOC"
+                    "IMMORTAL BELOVED","ASHLEY-RIVERHOUSE","TELADOC","Great Clips","WIKIPEDIA","UPS STORE"
   ),
   online_purchases = c('AMZN DIGITAL','Amazon.com*MB7H24C','AMZN Mktp','JIBJAB ECARDS',"AMAZON.COM","AMZN MKTP",
                        "DATACAMP INC","AMZN Digital")
 )
+
+
 
 # Miscellaneous: Laundry, Haircut, Parking, Books, Withdrawal, Snack, Shipping Online Purchase, Donations, Scam
 
@@ -242,7 +248,7 @@ types = list(
   ad_hoc_purchases = c('clothes_shoes','travel','electronics_movies_books',
                        'gifts_holidays','household_items','donations','online_purchases'),
   income = c('salary_and_reimbursement'),
-  savings_transfers = c('transfer_from_savings','transfer_to_savings'),
+  savings_investments = c('transfer_from_savings','transfer_to_savings','investments'),
   venmo = c('venmo_payment','venmo_paid')
 )
 
@@ -311,7 +317,7 @@ spending$Type <- factor(spending$Type, levels = c("INCOME",
                                                   "DAY TO DAY",
                                                   "VENMO",
                                                   "AD HOC PURCHASES",
-                                                  "SAVINGS TRANSFERS"))
+                                                  "SAVINGS INVESTMENTS"))
 
 ### DATE
 
@@ -405,7 +411,7 @@ spending$Month <- factor(spending$Month, levels = c("January","February", "March
 
 # Remove rows in current month
 spending <- spending%>%
-  #  filter(New_Date < Latest) %>%
+  filter(New_Date < Latest) %>%
   filter(New_Date >= Earliest)
 
 # drop unnecessary columns
@@ -483,10 +489,10 @@ Net_Spending_Savings <- spending %>%
   spread(Month, Total, fill=0)
 
 Net_Spending <- Net_Spending_Savings[1:5,]
-Savings_Transfers <- Net_Spending_Savings[6,]
+savings_investments <- Net_Spending_Savings[6,]
 
 Total_Spending <- spending %>%
-  filter(Type!="SAVINGS TRANSFERS", Type!="INCOME") %>%
+  filter(Type!="SAVINGS INVESTMENTS", Type!="INCOME") %>%
   group_by(Month)%>%
   summarise(Total=sum(Amount))%>%
   spread(Month, Total, fill=0)
@@ -551,10 +557,10 @@ writeData(wb,"Spending Summary", Total_Spending, startCol = 6, startRow = 5, col
 writeData(wb,"Spending Summary", Net_Spending[2:5,], startCol = 5, startRow = 6, colNames = FALSE, borders = "all")
 conditionalFormatting(wb, "Spending Summary", cols=6:(5+length(Total_Spending)), rows=4:9, style = c("#F8696B", "#FFEB84", "#63BE7B"), type = "colourScale")
 
-# SAVINGS TRANSFERS
-writeData(wb,"Spending Summary", "SAVINGS DEBITS AND CREDITS", startCol = 5, startRow = 11, borders = "all")
+# SAVINGS INVESTMENTS
+writeData(wb,"Spending Summary", "SAVINGS AND INVESTMENTS", startCol = 5, startRow = 11, borders = "all")
 addStyle(wb, "Spending Summary", Title, rows=11, cols=5)
-writeData(wb,"Spending Summary", Savings_Transfers, startCol = 5, startRow = 12, borders = "all")
+writeData(wb,"Spending Summary", savings_investments, startCol = 5, startRow = 12, borders = "all")
 addStyle(wb, "Spending Summary", Headers, cols=c(5:(5+length(Total_Spending))), rows=12)
 addStyle(wb, "Spending Summary", Numbers, rows=13, cols=6:(5+length(Total_Spending)))
 conditionalFormatting(wb, "Spending Summary", cols=6:(5+length(Total_Spending)), rows=13, style = c("#63BE7B", "#FFEB84", "#F8696B"), type = "colourScale")
